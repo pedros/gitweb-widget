@@ -3,7 +3,7 @@
    Plugin Name: Gitweb Widget 
    Version: 0.0.1
    Plugin URI: http://psilva.ath.cx/gitweb/?p=gitweb-widget.git
-   Description: Show git projects made public via a gitweb instance
+   Description: Show git projects made public via a gitweb instance in Wordpress
    Author: Pedro Silva <pedro.alex.silva@gmail.com>
    Author URI: http://psilva.ath.cx
 
