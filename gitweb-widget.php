@@ -1,7 +1,7 @@
 <?php
 /* 
    Plugin Name: Gitweb Widget 
-   Version: 0.0.1
+   Version: 0.0.2
    Plugin URI: http://psilva.ath.cx/gitweb/?p=gitweb-widget.git
    Description: Show git projects made public via a gitweb instance in Wordpress
    Author: Pedro Silva <pedro.alex.silva@gmail.com>
@@ -46,19 +46,29 @@ class GitwebWidget extends WP_Widget {
 
   }
 
-  function fetch_project_index($url) {
+  function fetch_project_index($url, $instance) {
 
     $repos = preg_grep("/\S+/", preg_split("/\n/", self::fetch_url_as_string($url.'/?a=project_index')));
+
+    if (isset($instance['owner'])) {
+      $owner = preg_replace('/\s+/', '\+', $instance['owner']);
+      $repos = preg_grep("/$owner/i", $repos);
+    }
 
     foreach ($repos as &$repo) {
 
       $repo = preg_split("/\s+/", $repo);
 
-      $atom_url = $url.'/?p='.$repo[0].';a=atom';
-      $atom_xml = self::fetch_url_as_string($atom_url);
+      if (isset($instance['description'])) {
+	$atom_url = $url.'/?p='.$repo[0].';a=atom';
+	$atom_xml = self::fetch_url_as_string($atom_url);
       
-      $description = preg_replace('#.*\<subtitle\>([^<]+)\</subtitle\>.*#si', '$1', $atom_xml);
-      $repo[2] = $description;
+	$description = preg_replace('#.*\<subtitle\>([^<]+)\</subtitle\>.*#si', '$1', $atom_xml);
+	$repo[2] = $description;
+      }
+      else {
+	$repo[2] = $repo[0];
+      }
     }
 
     return $repos;
@@ -75,25 +85,25 @@ class GitwebWidget extends WP_Widget {
     $title = apply_filters('widget_title', $instance['title']);
     
     echo $before_widget;
+
     if ( $title ) {
       echo $before_title . $title . $after_title;
     }
     
     $base_url = $instance['url'];
-    $name = preg_replace('/\.git$/', '', $base_url);
-
-    $repos = GitwebWidget::fetch_project_index($base_url);
-
-    if (isset( $instance['owner'] )) {
-      $repos = preg_grep('/'.$instance['owner'].'/', $repos);
-    }
+    $repos = self::fetch_project_index($base_url, $instance);
 
     sort($repos);
+
     echo '<ul>';
+
     foreach ($repos as &$repo) {
-      echo '<li><a title="'.$repo[2].'" href="'.$base_url.'/?p='.$repo[0].';a=summary'.'">'.$repo[0].'</a></li>'."\n";
+      $name = preg_replace('/\.git$/', '', $repo[0]);
+      echo '<li><a title="'.$repo[2].'" href="'.$base_url.'/?p='.$repo[0].';a=summary'.'">'.$name.'</a></li>'."\n";
     }
+
     echo '</ul>';
+
     echo $after_widget;
   }
 
@@ -103,6 +113,7 @@ class GitwebWidget extends WP_Widget {
     $instance['title'] = strip_tags($new_instance['title']);
     $instance['url'] = strip_tags($new_instance['url']);
     $instance['owner'] = strip_tags($new_instance['owner']);
+    $instance['description'] = strip_tags($new_instance['description']);
 
     preg_replace("/\/$/", '', $instance['url']);
 
@@ -114,10 +125,11 @@ class GitwebWidget extends WP_Widget {
     $title = esc_attr($instance['title']);
     $url = esc_attr($instance['url']);
     $owner = esc_attr($instance['owner']);
+    $description = esc_attr($instance['description']);
 ?>
 <p><label for="<?php echo $this->get_field_id('title'); ?>"><?php _e('Title:'); ?> <input class="widefat" id="<?php echo $this->get_field_id('title'); ?>" name="<?php echo $this->get_field_name('title'); ?>" type="text" value="<?php echo $title; ?>" /></label></p>
 <p><label for="<?php echo $this->get_field_id('url'); ?>"><?php _e('Gitweb URL:'); ?> <input class="widefat" id="<?php echo $this->get_field_id('url'); ?>" name="<?php echo $this->get_field_name('url'); ?>" type="text" value="<?php echo $url; ?>" /></label></p>
-<p><label for="<?php echo $this->get_field_id('owner'); ?>"><?php _e('Owner (optional):'); ?> <input class="widefat" id="<?php echo $this->get_field_id('owner'); ?>" name="<?php echo $this->get_field_name('owner'); ?>" type="text" value="<?php echo $owner; ?>" /></label></p>
+<p><label for="<?php echo $this->get_field_id('owner'); ?>"><?php _e('Owner (optional):'); ?> <input class="widefat" id="<?php echo $this->get_field_id('owner'); ?>" name="<?php echo $this->get_field_name('owner'); ?>" type="text" value="<?php echo $owner; ?>" /></label><p><label for="<?php echo $this->get_field_id('description'); ?>"><?php _e('Fetch project descriptions (slow!):'); ?> <input  id="<?php echo $this->get_field_id('description'); ?>" name="<?php echo $this->get_field_name('description'); ?>" type="checkbox" value="<?php echo $description; ?>" /></label></p>
 <?php 
 
   }
