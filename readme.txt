@@ -1,6 +1,6 @@
 === Plugin Name ===
 Contributors: psilva
-Donate link: pay it forward
+Donate link: https://www.paypal.com/cgi-bin/webscr?cmd=_donations&business=mail%40pedrosilva%2einfo&lc=US&item_name=Pedro%20Silva&no_note=0&currency_code=USD&bn=PP%2dDonationsBF%3abtn_donateCC_LG%2egif%3aNonHostedGuest
 Tags: git, gitweb, version control, widget, code
 Requires at least: 2.8
 Tested up to: 3.0.1
