@@ -2,10 +2,10 @@
 /* 
    Plugin Name: Gitweb Widget 
    Version: 0.0.1
-   Plugin URI: http://psilva.ath.cx/gitweb/?p=gitweb-widget.git
+   Plugin URI: http://git.pedrosilva.pt/?p=gitweb-widget.git
    Description: Show git projects made public via a gitweb instance in Wordpress
    Author: Pedro Silva <pedro.alex.silva@gmail.com>
-   Author URI: http://psilva.ath.cx
+   Author URI: http://www.pedrosilva.pt/
    License: GPL3
 
    Copyright 2010 Pedro Silva <pedro.alex.silva@gmail.com>
@@ -116,7 +116,7 @@ class GitwebWidget extends WP_Widget {
     $instance['owner'] = strip_tags( $new_instance['owner'] );
     $instance['description'] = strip_tags( $new_instance['description'] );
 
-    preg_replace( '/\/$/', '', $instance['url'] );
+    $instance['url'] = preg_replace( '/\/$/', '', $instance['url'] );
 
     return $instance;
   }
